@@ -1,0 +1,18 @@
+{
+  "name": "File Distribution",
+  "shortName": "filedist",
+  "version": "0.0.1",
+  "author": "Ryan Blenis",
+  "description": "Distribute Files to nodes",
+  "hasAdminPanel": false,
+  "homepage": "https://github.com/ryanblenis/MeshCentral-FileDistribution",
+  "changelogUrl": "https://raw.githubusercontent.com/ryanblenis/MeshCentral-FileDistribution/master/changelog.md",
+  "configUrl": "https://raw.githubusercontent.com/ryanblenis/MeshCentral-FileDistribution/master/config.json",
+  "downloadUrl": "https://github.com/ryanblenis/MeshCentral-FileDistribution/archive/master.zip",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ryanblenis/MeshCentral-FileDistribution.git"
+  },
+  "versionHistoryUrl": "https://api.github.com/repos/ryanblenis/MeshCentral-FileDistribution/tags",
+  "meshCentralCompat": ">=0.4.6-s"
+}

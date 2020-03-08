@@ -1,0 +1,158 @@
+<html>
+<head>
+    <script type="text/javascript" src="scripts/common-0.0.1.js"></script>
+</head>
+<style>
+    body {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    }
+    #goAdd, .delMap {
+        cursor: pointer;
+    }
+</style>
+<body onload="doOnLoad();">
+<div id="fileDistUser">
+  <div id="fileDist_main">
+      <table id="fdMaps">
+          <tr><th width="40%">Server Path</th><th width="40%">Client Path</th><th width="20%">Delete</th></tr>
+      </table>
+      <span id="goAdd" onclick="goAdd();">[+]</span>
+  </div>
+</div>
+</body>
+<script type="text/javascript">
+var filemaps = {{{filemaps}}};
+var sPathsToNPaths = {};
+var fTree = {};
+function resizeIframe() {
+    document.body.style.height = 0;
+    parent.pluginHandler.scripttask.resizeContent();
+}
+
+function doOnLoad() {
+  fTree = {};
+  parseFileTree();
+  parseNicePaths();
+  redrawMaps();
+}
+function parseNicePaths() {
+    sPathsToNPaths = {};
+    fTree.forEach(function(f) {
+        sPathsToNPaths[f.linkpath] = f.nicepath;
+    });
+}
+function redrawMaps() {
+    var fdMapTbl = Q('fdMaps');
+    var fdMapRows = document.querySelectorAll('.fmRow');
+    
+    fdMapRows.forEach(function(r) {
+        r.parentNode.removeChild(r);
+    });
+    filemaps.forEach(function(m) {
+        //h += '<div x-data-id="' + m._id + '" class="fmRow"><span class="serverfile">' + sPathsToNPaths[m.serverpath] + '</span><span class="clientfile">' + m.clientpath + '</span></div>';
+        let tpl = '<td>' + sPathsToNPaths[m.serverpath] + '</td> \
+          <td>' + m.clientpath + '</td> \
+          <td><span class="delMap" onclick="deleteMap(this);">X</span></td>';
+        let tr = fdMapTbl.insertRow(-1);
+        tr.innerHTML = tpl;
+        tr.classList.add('fmRow');
+        tr.setAttribute('x-data-id', m._id);
+    });
+    //resizeIframe();
+}
+  function goAddEx2() {
+      var spath = parent.Q('fdspath').value;
+      var cpath = parent.Q('fdclientPath').value;
+      parent.meshserver.send({ action: 'plugin', plugin: 'filedist', pluginaction: 'addFileMap', spath: spath, cpath: cpath, currentNodeId: parent.currentNode._id });
+
+  }
+  function goAddEx() {
+      var spath = parent.Q('fdspath').value;
+      if (spath == '') {
+          parent.setDialogMode(2, "Oops!", 1, null, 'You didn\'t to select a server file to distribute.'); 
+          return;
+      }
+      parent.setDialogMode(2, "Choose Location on Endpoint", 3, goAddEx2, '<input type="hidden" id="fdspath" value="' + spath + '" /><input type="text" style="width:100%" placeholder="C:\\Users\\Public\\Desktop\\MyFile.ext" id="fdclientPath" />'); 
+      parent.focusTextBox('fdclientPath');
+  }
+  function goAdd() {
+      var fhtml = getFilesHtml();
+      parent.setDialogMode(2, "Choose File to Distribute", 3, goAddEx, fhtml); 
+      parent.focusTextBox('fdfilter');
+  }
+  function deleteMapEx() {
+      var mapid = parent.document.getElementById('fdmapid').value;
+      parent.meshserver.send({ action: 'plugin', plugin: 'filedist', pluginaction: 'deleteMap', id: mapid, currentNodeId: parent.currentNode._id });
+  }
+  function deleteMap(el) {
+      var mid = el.parentNode.parentNode.getAttribute('x-data-id');
+      parent.setDialogMode(2, "Delete File Map?", 3, deleteMapEx, 'Are you sure you want to delete this?<input type="hidden" id="fdmapid" value="' + mid + '" />'); 
+  }
+  parent.pluginHandler.filedist.loadMaps = function (msg) {
+      if (msg.event.nodeId == parent.currentNode._id) {
+          filemaps = msg.event.mapData;
+          doOnLoad();
+      }
+  }
+  parent.pluginHandler.filedist.filterFiles = function (el) {
+      var val = el.value;
+      var rows = parent.document.querySelectorAll('.fdfh');
+      rows.forEach(function(r) {
+          if (r.innerHTML.indexOf(val) >= 0) r.style.display = '';
+          else r.style.display = 'none';
+      })
+  }
+  parent.pluginHandler.filedist.fileSelected = function (el) {
+      var sval = el.getAttribute('x-data-spath');
+      parent.Q('fdspath').value = sval;
+      var rows = parent.document.querySelectorAll('.fdfh');
+      rows.forEach(function(r) {
+          r.style['font-weight'] = '';
+      })
+      el.style['font-weight'] = 'bold';
+  }
+  function getFilesHtml() {
+      var h = '<div style="max-height: 300px;max-width:700px;min-width:500px;overflow:scroll;">';
+      fTree.forEach(function (a) {
+          h += '<div x-data-spath="' + a.linkpath + '" style="padding: 1px;" class="fdfh" onclick="pluginHandler.filedist.fileSelected(this);">' + a.nicepath + '</div>';
+      });
+      h += '<div>Filter: <input id="fdfilter" type="text" onkeyup=pluginHandler.filedist.filterFiles(this); /></div>';
+      h += '<input type="hidden" id="fdspath" /></div>';
+      return h;
+  }
+  Array.prototype.remove = function(from, to) {
+    var rest = this.slice((to || from) + 1 || this.length);
+    this.length = from < 0 ? this.length + from : from;
+    return this.push.apply(this, rest);
+  };
+  var fTree = [];
+  var loc = [];
+  var niceLoc = [];
+  var lastT = null;
+  function parseFileTree(tree) {
+      if (tree == null) { 
+          fTree = []; 
+          loc = [];
+          niceLoc = [];
+          return parseFileTree(parent.filetree.f); 
+      }
+      for (var [k, v] of Object.entries(tree)) {
+          wasT = v.t;
+          if (v.t != 3) {
+              if (v.t == 4) { loc = []; niceLoc = []; }
+              loc.push(k);
+              niceLoc.push(v.n || k);
+          }
+          if (v.t <= 2 || v.t == 4) parseFileTree(v.f);
+          if (v.t == 3) {
+              fTree.push( {
+                  linkpath: loc.join('/') + '/' + k,
+                  nicepath: niceLoc.join('/') + '/' + k
+              } );
+          }
+      }
+      loc.pop(); niceLoc.pop();
+  }
+  
+</script>
+</html>
