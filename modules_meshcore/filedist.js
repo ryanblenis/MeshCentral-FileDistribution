@@ -9,17 +9,12 @@
 var mesh;
 var obj = this;
 var _sessionid;
-var isWsconnection = false;
-var wscon = null;
 var db = require('SimpleDataStore').Shared();
 var debug_flag = false;
 var periodicFileIntegrityTimer = null;
 var fileMaps = {};
 
 var fs = require('fs');
-var os = require('os');
-var net = require('net');
-var http = require('http');
 var fileBuffer = {};
 var lastRun = null;
 
@@ -41,8 +36,6 @@ Array.prototype.remove = function(from, to) {
 };
 
 function consoleaction(args, rights, sessionid, parent) {
-    isWsconnection = false;
-    wscon = parent;
     _sessionid = sessionid;
     if (typeof args['_'] == 'undefined') {
       args['_'] = [];
@@ -50,7 +43,6 @@ function consoleaction(args, rights, sessionid, parent) {
       args['_'][2] = null;
       args['_'][3] = null;
       args['_'][4] = null;
-      isWsconnection = true;
     }
     
     var fnname = args['_'][1];

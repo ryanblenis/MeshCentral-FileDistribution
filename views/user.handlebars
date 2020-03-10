@@ -137,7 +137,6 @@ function redrawMaps() {
           return parseFileTree(parent.filetree.f); 
       }
       for (var [k, v] of Object.entries(tree)) {
-          wasT = v.t;
           if (v.t != 3) {
               if (v.t == 4) { loc = []; niceLoc = []; }
               loc.push(k);

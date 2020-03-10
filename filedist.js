@@ -209,9 +209,6 @@ module.exports.filedist = function (parent) {
     
     obj.serveraction = function(command, myparent, grandparent) {
         switch (command.pluginaction) {
-            case 'test':
-                obj.sendFile('x');
-            break;
             case 'addFileMap':
                 var realPath = obj.getServerFilePath(command.spath);
                 var sz = 0;
