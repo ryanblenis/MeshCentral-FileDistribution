@@ -183,15 +183,19 @@ module.exports.filedist = function (parent) {
             obj.debug('PLUGIN', PLUGIN_C, 'Sending file to ' + comp);
             var fs = require('fs');
             var path = realPath.fullpath;
-            var readStream = fs.createReadStream(path, { encoding: "hex" });
-            readStream.on('data', function (chunk) {
-                command.data = chunk;
-                obj.meshServer.webserver.wsagents[comp].send(JSON.stringify(command)); 
-            })
-            readStream.on('end', function (chunk) {
-                command.data = 'END';
-                obj.meshServer.webserver.wsagents[comp].send(JSON.stringify(command)); 
-            })
+            try {
+                var readStream = fs.createReadStream(path, { encoding: "hex" });
+                readStream.on('data', function (chunk) {
+                    command.data = chunk;
+                    obj.meshServer.webserver.wsagents[comp].send(JSON.stringify(command)); 
+                })
+                readStream.on('end', function (chunk) {
+                    command.data = 'END';
+                    obj.meshServer.webserver.wsagents[comp].send(JSON.stringify(command)); 
+                })
+            } catch (e) {
+                obj.debug('PLUGIN', PLUGIN_C, 'Could not send file (' + serverpath + ') to ' + comp + '. File may be missing. Info: ' + e.stack);
+            }
         } catch (e) { 
             obj.debug('PLUGIN', PLUGIN_C, 'Could not send file to ' + comp + e.stack); 
         }
