@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-FileDistribution) if you find anything.
 
+## [0.0.2] - 2020-03-16
+### Fixed
+- Check file existence of on server before attempting to send to endpoint. Was causing server crashes if the file was deleted by an admin but a file mapping still existed for a node.
+
 ## [0.0.1] - 2020-03-08
 ### Added
 - Released initial version

@@ -184,6 +184,7 @@ module.exports.filedist = function (parent) {
             var fs = require('fs');
             var path = realPath.fullpath;
             try {
+                fs.statSync(path);
                 var readStream = fs.createReadStream(path, { encoding: "hex" });
                 readStream.on('data', function (chunk) {
                     command.data = chunk;

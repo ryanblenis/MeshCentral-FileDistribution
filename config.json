@@ -1,7 +1,7 @@
 {
   "name": "File Distribution",
   "shortName": "filedist",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Ryan Blenis",
   "description": "Distribute Files to nodes",
   "hasAdminPanel": false,
